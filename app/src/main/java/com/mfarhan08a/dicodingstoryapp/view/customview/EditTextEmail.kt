@@ -6,7 +6,6 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Patterns
 import androidx.appcompat.widget.AppCompatEditText
-import com.bumptech.glide.Glide.init
 import com.mfarhan08a.dicodingstoryapp.R
 
 class EditTextEmail : AppCompatEditText {

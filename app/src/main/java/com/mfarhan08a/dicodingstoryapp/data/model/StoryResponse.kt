@@ -1,51 +1,63 @@
 package com.mfarhan08a.dicodingstoryapp.data.model
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 data class StoryResponse(
 
-	@field:SerializedName("listStory")
-	val listStory: List<Story>,
+    @field:SerializedName("listStory")
+    val listStory: List<Story>,
 
-	@field:SerializedName("error")
-	val error: Boolean,
+    @field:SerializedName("error")
+    val error: Boolean,
 
-	@field:SerializedName("message")
-	val message: String
+    @field:SerializedName("message")
+    val message: String
 )
 
 data class DetailStoryResponse(
 
-	@field:SerializedName("story")
-	val story: Story,
+    @field:SerializedName("story")
+    val story: Story,
 
-	@field:SerializedName("error")
-	val error: Boolean,
+    @field:SerializedName("error")
+    val error: Boolean,
 
-	@field:SerializedName("message")
-	val message: String
+    @field:SerializedName("message")
+    val message: String
 )
 
+@Entity("story")
 data class Story(
 
-	@field:SerializedName("photoUrl")
-	val photoUrl: String,
+    @PrimaryKey(false)
+    @ColumnInfo("id")
+    @field:SerializedName("id")
+    val id: String,
 
-	@field:SerializedName("createdAt")
-	val createdAt: String,
+    @ColumnInfo("photoUrl")
+    @field:SerializedName("photoUrl")
+    val photoUrl: String,
 
-	@field:SerializedName("name")
-	val name: String,
+    @ColumnInfo("createdAt")
+    @field:SerializedName("createdAt")
+    val createdAt: String,
 
-	@field:SerializedName("description")
-	val description: String,
+    @ColumnInfo("name")
+    @field:SerializedName("name")
+    val name: String,
 
-	@field:SerializedName("lon")
-	val lon: Any,
+    @ColumnInfo("description")
+    @field:SerializedName("description")
+    val description: String,
 
-	@field:SerializedName("id")
-	val id: String,
+    @ColumnInfo("lon")
+    @field:SerializedName("lon")
+    val lon: Double?,
 
-	@field:SerializedName("lat")
-	val lat: Any
+    @ColumnInfo("lat")
+    @field:SerializedName("lat")
+    val lat: Double?
 )

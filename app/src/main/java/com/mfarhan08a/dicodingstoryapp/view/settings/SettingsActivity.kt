@@ -2,21 +2,19 @@ package com.mfarhan08a.dicodingstoryapp.view.settings
 
 import android.app.LocaleManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.LocaleList
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.mfarhan08a.dicodingstoryapp.R
 import com.mfarhan08a.dicodingstoryapp.databinding.ActivitySettingsBinding
 import com.mfarhan08a.dicodingstoryapp.utils.ViewModelFactory
-import com.mfarhan08a.dicodingstoryapp.view.register.RegisterViewModel
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding

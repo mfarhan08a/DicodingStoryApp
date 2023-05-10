@@ -43,4 +43,9 @@
     <string name="choose_picture">Choose a Picture</string>
     <string name="enter_data">Please enter your data</string>
     <string name="invalid_data">Your data is invalid</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="story_maps">Story Maps</string>
+    <string name="retry">Try Again</string>
+    <string name="timeout">Timeout</string>
+    <string name="share_my_location">Share My Location</string>
 </resources>

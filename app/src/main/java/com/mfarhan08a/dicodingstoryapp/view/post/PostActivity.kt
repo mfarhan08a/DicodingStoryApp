@@ -1,17 +1,26 @@
 package com.mfarhan08a.dicodingstoryapp.view.post
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.location.Location
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.mfarhan08a.dicodingstoryapp.R
 import com.mfarhan08a.dicodingstoryapp.utils.createTempFile
 import com.mfarhan08a.dicodingstoryapp.databinding.ActivityPostBinding
@@ -23,9 +32,11 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import com.mfarhan08a.dicodingstoryapp.data.Result
+import kotlinx.coroutines.launch
 
 class PostActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostBinding
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val postViewModel by viewModels<PostViewModel> {
         ViewModelFactory.getInstance(application)
@@ -33,6 +44,7 @@ class PostActivity : AppCompatActivity() {
 
     private lateinit var currentPhotoPath: String
     private var getFile: File? = null
+    private var location: Location? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +58,21 @@ class PostActivity : AppCompatActivity() {
         binding.apply {
             buttonCamera.setOnClickListener { startTakePhoto() }
             buttonGallery.setOnClickListener { startGallery() }
+            cbShareLocation.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+                if (isChecked) {
+                    lifecycleScope.launch {
+                        getMyLastLocation()
+                    }
+                } else {
+                    location = null
+                }
+            }
             postViewModel.getToken().observe(this@PostActivity) { token ->
                 buttonAdd.setOnClickListener { postStory(token!!) }
             }
         }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@PostActivity)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -86,7 +109,7 @@ class PostActivity : AppCompatActivity() {
                 requestImageFile
             )
 
-            postViewModel.addNewStory(token, imageMultipart, description).observe(this) {
+            postViewModel.addNewStory(token, imageMultipart, description, location).observe(this) {
                 when (it) {
                     is Result.Loading -> {
                         showLoading(true)
@@ -160,6 +183,57 @@ class PostActivity : AppCompatActivity() {
             val myFile = uriToFile(selectedImg, this@PostActivity)
             getFile = myFile
             binding.ivPreview.setImageURI(selectedImg)
+        }
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false -> {
+                    getMyLastLocation()
+                }
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false -> {
+                    getMyLastLocation()
+                }
+                else -> {
+                    binding.cbShareLocation.isChecked = false
+                }
+            }
+        }
+
+    private fun checkPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+    @SuppressLint("MissingPermission")
+    private fun getMyLastLocation() {
+        if (checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) &&
+            checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    this.location = location
+                } else {
+                    Toast.makeText(
+                        this@PostActivity,
+                        "Location is not found. Try Again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    binding.cbShareLocation.isChecked = false
+                }
+            }
+        } else {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
         }
     }
 

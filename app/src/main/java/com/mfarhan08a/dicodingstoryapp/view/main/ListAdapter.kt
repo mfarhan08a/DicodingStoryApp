@@ -1,21 +1,19 @@
 package com.mfarhan08a.dicodingstoryapp.view.main
 
 import android.app.Activity
-import android.content.Intent
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.mfarhan08a.dicodingstoryapp.R
 import com.mfarhan08a.dicodingstoryapp.data.model.Story
+import com.mfarhan08a.dicodingstoryapp.databinding.ItemStoryBinding
 
-class ListAdapter(private val listStory: List<Story>) :
-    RecyclerView.Adapter<ListAdapter.ListViewHolder>() {
+class ListAdapter :
+    PagingDataAdapter<Story, ListAdapter.ListViewHolder>(DIFF_CALLBACK) {
 
     private lateinit var onItemClickCallback: OnItemClickCallback
 
@@ -27,30 +25,29 @@ class ListAdapter(private val listStory: List<Story>) :
         this.onItemClickCallback = onItemClickCallback
     }
 
-    class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-         var ivPhoto: ImageView = itemView.findViewById(R.id.iv_item_photo)
-         var tvName: TextView = itemView.findViewById(R.id.tv_item_name)
-         var tvDescription: TextView = itemView.findViewById(R.id.tv_item_description)
+    inner class ListViewHolder(binding: ItemStoryBinding) : RecyclerView.ViewHolder(binding.root) {
+        var ivPhoto= binding.ivItemPhoto
+        var tvName = binding.tvItemName
+        var tvDescription = binding.tvItemDescription
 
-        fun bind(story: Story) {
+        fun bind(story: Story?) {
             Glide.with(itemView.context)
-                .load(story.photoUrl)
+                .load(story?.photoUrl)
                 .into(ivPhoto)
-            tvName.text = story.name
-            tvDescription.text = story.description
+            tvName.text = story?.name
+            tvDescription.text = story?.description
         }
-
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
-        val view: View =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_story, parent, false)
-        return ListViewHolder(view)
+        return ListViewHolder(
+            ItemStoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        holder.bind(listStory[position])
+        val story = getItem(position)
+        holder.bind(story)
         holder.itemView.setOnClickListener {
             val optionsCompat: ActivityOptionsCompat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(
@@ -59,11 +56,21 @@ class ListAdapter(private val listStory: List<Story>) :
                     Pair(holder.tvName, "name"),
                     Pair(holder.tvDescription, "description")
                 )
-            onItemClickCallback.onItemClicked(listStory[holder.adapterPosition], optionsCompat)
+            onItemClickCallback.onItemClicked(story!!, optionsCompat)
         }
 
     }
 
-    override fun getItemCount(): Int = listStory.size
+    companion object {
+        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Story>() {
+            override fun areItemsTheSame(oldItem: Story, newItem: Story): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: Story, newItem: Story): Boolean {
+                return oldItem.id == newItem.id
+            }
+        }
+    }
 
 }

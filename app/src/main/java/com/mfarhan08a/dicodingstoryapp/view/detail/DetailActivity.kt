@@ -1,11 +1,11 @@
 package com.mfarhan08a.dicodingstoryapp.view.detail
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.mfarhan08a.dicodingstoryapp.R
 import com.mfarhan08a.dicodingstoryapp.data.Result

@@ -8,6 +8,7 @@ import com.mfarhan08a.dicodingstoryapp.di.Injection
 import com.mfarhan08a.dicodingstoryapp.view.detail.DetailViewModel
 import com.mfarhan08a.dicodingstoryapp.view.login.LoginViewModel
 import com.mfarhan08a.dicodingstoryapp.view.main.MainViewModel
+import com.mfarhan08a.dicodingstoryapp.view.maps.MapsViewModel
 import com.mfarhan08a.dicodingstoryapp.view.post.PostViewModel
 import com.mfarhan08a.dicodingstoryapp.view.register.RegisterViewModel
 import com.mfarhan08a.dicodingstoryapp.view.settings.SettingsViewModel
@@ -24,6 +25,7 @@ class ViewModelFactory private constructor(
             modelClass.isAssignableFrom(DetailViewModel::class.java) -> return DetailViewModel(repository) as T
             modelClass.isAssignableFrom(PostViewModel::class.java) -> return PostViewModel(repository) as T
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> return SettingsViewModel(repository) as T
+            modelClass.isAssignableFrom(MapsViewModel::class.java) -> return MapsViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel Class: " + modelClass.name)
     }

@@ -1,15 +1,15 @@
 package com.mfarhan08a.dicodingstoryapp.data
 
+import android.location.Location
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import com.mfarhan08a.dicodingstoryapp.data.model.DetailStoryResponse
-import com.mfarhan08a.dicodingstoryapp.data.model.LoginResponse
-import com.mfarhan08a.dicodingstoryapp.data.model.Response
-import com.mfarhan08a.dicodingstoryapp.data.model.StoryResponse
+import androidx.paging.*
+import com.mfarhan08a.dicodingstoryapp.data.local.StoryDatabase
+import com.mfarhan08a.dicodingstoryapp.data.model.*
 import com.mfarhan08a.dicodingstoryapp.data.network.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +20,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 class Repository private constructor(
     private val apiService: ApiService,
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val database: StoryDatabase
 ) {
     // Token dataStore
     fun getToken(): Flow<String?> {
@@ -29,7 +30,7 @@ class Repository private constructor(
         }
     }
 
-    suspend fun saveToken(token: String) {
+    private suspend fun saveToken(token: String) {
         dataStore.edit { preferences ->
             preferences[TOKEN_KEY] = token
         }
@@ -78,36 +79,60 @@ class Repository private constructor(
             }
         }
 
-    fun getAllStories(token: String): LiveData<Result<StoryResponse>> = liveData(Dispatchers.IO) {
-        emit(Result.Loading)
-        try {
-            val response = apiService.getAllStories("Bearer $token")
-            emit(Result.Success(response))
-        } catch (e: Exception) {
-            emit(Result.Error(e.message.toString()))
-        }
+    @OptIn(ExperimentalPagingApi::class)
+    fun getAllStories(token: String): LiveData<PagingData<Story>> {
+        return Pager(
+            config = PagingConfig(pageSize = 3),
+            remoteMediator = StoryRemoteMediator(
+                apiService,
+                database,
+                "Bearer $token"
+            ),
+            pagingSourceFactory = {
+                database.storyDao().getAllStory()
+            }
+        ).liveData
     }
 
-    fun getDetailStory(token: String, id: String): LiveData<Result<DetailStoryResponse>> = liveData(Dispatchers.IO) {
-        emit(Result.Loading)
-        try {
-            val response = apiService.getDetailStories("Bearer $token", id)
-            emit(Result.Success(response))
-        } catch (e: Exception) {
-            emit(Result.Error(e.message.toString()))
+    fun getAllStoriesWithLocation(token: String): LiveData<Result<StoryResponse>> =
+        liveData(Dispatchers.IO) {
+            emit(Result.Loading)
+            try {
+                val response = apiService.getAllStories("Bearer $token", location = 1)
+                emit(Result.Success(response))
+            } catch (e: Exception) {
+                emit(Result.Error(e.message.toString()))
+            }
         }
-    }
+
+    fun getDetailStory(token: String, id: String): LiveData<Result<DetailStoryResponse>> =
+        liveData(Dispatchers.IO) {
+            emit(Result.Loading)
+            try {
+                val response = apiService.getDetailStories("Bearer $token", id)
+                emit(Result.Success(response))
+            } catch (e: Exception) {
+                emit(Result.Error(e.message.toString()))
+            }
+        }
 
     fun addNewStory(
         token: String,
         file: MultipartBody.Part,
-        description: String
-    ) : LiveData<Result<Response>> = liveData(Dispatchers.IO) {
+        description: String,
+        location: Location?
+    ): LiveData<Result<Response>> = liveData(Dispatchers.IO) {
         emit(Result.Loading)
         try {
-            val response = apiService.addNewStory("Bearer $token", file, description.toRequestBody("text/plain".toMediaType()))
+            val response = apiService.addNewStory(
+                "Bearer $token",
+                file,
+                description.toRequestBody("text/plain".toMediaType()),
+                location?.latitude.toString().toRequestBody("text/plain".toMediaType()),
+                location?.longitude.toString().toRequestBody("text/plain".toMediaType())
+            )
             emit(Result.Success(response))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             emit(Result.Error(e.message.toString()))
         }
     }
@@ -120,9 +145,10 @@ class Repository private constructor(
         private var instance: Repository? = null
         fun getInstance(
             apiService: ApiService,
-            dataStore: DataStore<Preferences>
+            dataStore: DataStore<Preferences>,
+            database: StoryDatabase
         ): Repository = instance ?: synchronized(this) {
-            instance ?: Repository(apiService, dataStore)
+            instance ?: Repository(apiService, dataStore, database)
         }.also { instance = it }
     }
 }

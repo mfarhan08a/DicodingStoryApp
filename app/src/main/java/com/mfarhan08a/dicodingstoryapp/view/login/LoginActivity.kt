@@ -4,24 +4,21 @@ import android.animation.ObjectAnimator
 import android.app.LocaleManager
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.LocaleList
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Patterns
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.os.LocaleListCompat
 import com.mfarhan08a.dicodingstoryapp.R
-import com.mfarhan08a.dicodingstoryapp.view.main.MainActivity
-import com.mfarhan08a.dicodingstoryapp.view.register.RegisterActivity
+import com.mfarhan08a.dicodingstoryapp.data.Result
 import com.mfarhan08a.dicodingstoryapp.databinding.ActivityLoginBinding
 import com.mfarhan08a.dicodingstoryapp.utils.ViewModelFactory
-import com.mfarhan08a.dicodingstoryapp.data.Result
+import com.mfarhan08a.dicodingstoryapp.view.main.MainActivity
+import com.mfarhan08a.dicodingstoryapp.view.register.RegisterActivity
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -113,19 +110,6 @@ class LoginActivity : AppCompatActivity() {
                         ).show()
                     }
                 }
-            }
-        }
-    }
-
-    private fun setButtonEnable() {
-        binding.apply {
-            val email = edLoginEmail.text.toString()
-            val password = edLoginPassword.text.toString()
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                btnLogin.isEnabled =
-                    !Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length >= 8
-            } else {
-                btnLogin.isEnabled = false
             }
         }
     }

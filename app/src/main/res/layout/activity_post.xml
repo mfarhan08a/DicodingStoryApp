@@ -21,8 +21,8 @@
 
     <ImageView
         android:id="@+id/iv_preview"
-        android:layout_width="360dp"
-        android:layout_height="360dp"
+        android:layout_width="320dp"
+        android:layout_height="320dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
@@ -37,7 +37,7 @@
         android:id="@+id/button_camera"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/camera"
         app:layout_constraintEnd_toStartOf="@+id/button_gallery"
@@ -59,10 +59,9 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/button_gallery"
+        app:layout_constraintStart_toStartOf="@+id/button_camera"
         app:layout_constraintTop_toBottomOf="@+id/button_gallery">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -76,14 +75,28 @@
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <CheckBox
+        android:id="@+id/cb_share_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/descriptionEditTextLayout"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionEditTextLayout" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/share_my_location"
+        app:layout_constraintBottom_toBottomOf="@+id/cb_share_location"
+        app:layout_constraintStart_toEndOf="@+id/cb_share_location"
+        app:layout_constraintTop_toTopOf="@+id/cb_share_location" />
+
     <Button
         android:id="@+id/button_add"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:text="@string/post_story"
         app:layout_constraintEnd_toEndOf="@+id/descriptionEditTextLayout"
         app:layout_constraintStart_toStartOf="@+id/descriptionEditTextLayout"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionEditTextLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/cb_share_location" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
